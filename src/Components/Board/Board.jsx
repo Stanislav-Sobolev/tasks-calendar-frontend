@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 import { Card } from '../Card/Card';
 import cardEmptyTemplate from '../../assets/json/cardEmptyTemplate.json';
 import styles from './Board.module.scss';
 import { Plus } from '../Icons';
 import { createCard, dndCard } from '../../helpers/fetchers';
+import Calendar from 'react-calendar';
+import { Ok, Cross } from '../Icons';
 
 export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const { id: boardId, columnsData } = boardData;
@@ -13,6 +16,11 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
   const [currentColumn, setCurrentColumn] = useState(null);
   const [currentCard, setCurrentCard] = useState(null);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [isShowCalendar, setIsShowCalendar] = useState(false);
+  const [activeColumn, setActiveColumn] = useState(null);
+  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState('');
 
   useEffect(() => {
     setColumns(columnsData);
@@ -54,29 +62,83 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
     target.style.boxShadow = 'none';
   };
 
-  const addCardHandler = async (column) => {
-    const emptyCard = { ...cardEmptyTemplate, id: Date.now() };
-
-    setBoardData((board) => {
-      if (board) {
-        
-        const foundColumn = board.columnsData.find((col) => col.id === column.id);
-        
-        if (foundColumn) {
-          foundColumn.items.push(emptyCard);
-          
-          return {...board};
-        }
-      }
-      return board;
-    });
-
-    createCard(boardId, column.id, emptyCard, failFetchCallback);
+  const addCardHandler = (column) => {
+    setActiveColumn(column);
+    setIsShowCalendar(true);
   }
+
+  const cancelHandler = () => {
+    setTitle('');
+    setDescription('');
+    setIsShowCalendar(false);
+    setActiveColumn(null);
+  }
+
+  const saveUpdateHandler = () => {
+    const createdCard = { ...cardEmptyTemplate, id: Date.now(), title, description, calendarDate: calendarDate.getTime() };
+
+    if (activeColumn && title && description && calendarDate) {
+      setBoardData((board) => {
+        if (board) {
+          
+          const foundColumn = board.columnsData.find((col) => col.id === activeColumn.id);
+          
+          if (foundColumn) {
+            foundColumn.items.push(createdCard);
+            
+            return {...board};
+          }
+        }
+        return board;
+      });
+  
+      createCard(boardId, activeColumn.id, createdCard, failFetchCallback);
+      cancelHandler();
+    } else {
+      toast.error('Please, fill Title, Description and CalendarDate');
+    }
+  }
+
+  const renderModal = () => (
+    <>
+    <div className={styles.modalOverlay}>
+    <div className={styles.modalWrapper}>
+      <input
+        className={styles.cardTextInput}
+        type="text"
+        value={title}
+        placeholder='title'
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        className={styles.cardDescriptionInput}
+        type="text"
+        value={description}
+        placeholder='description'
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <Calendar 
+        onChange={setCalendarDate} 
+        value={calendarDate}
+        locale={'en-EN'}
+      /> 
+      <div className={styles.iconWrapper}>
+      <div onClick={cancelHandler}>
+        <Cross className={styles.crossIcon}/>
+      </div>
+      <div onClick={saveUpdateHandler}>
+        <Ok className={styles.okIcon} />
+      </div>
+      </div>
+      </div>
+    </div>
+    </>
+  );
 
   return (
     <div className={styles.board}>
       <h1 className={styles.boardName}>{nameBoard}</h1>
+      { isShowCalendar ? renderModal() : null}
       <div className={styles.columns}>
         {columns && columns.map(column => 
           <div key={column.id} className={styles.columnWrapper}>

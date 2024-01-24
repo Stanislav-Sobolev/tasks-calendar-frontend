@@ -9,7 +9,7 @@ import styles from './App.module.scss';
 import { Cross, Ok } from './Components/Icons';
 
 export const App = () => {
-  const [searchTerm, setSearchTerm] = useState('1');
+  const [searchTerm, setSearchTerm] = useState('');
   const [filteredBoard, setFilteredBoard] = useState(null);
   const [nameBoard, setNameBoard] = useState('');
   const [idBoard, setIdBoard] = useState('');
@@ -26,7 +26,7 @@ export const App = () => {
   
 
   useEffect(() => {
-    fetchBoard();
+    fetchBoard('1');
   // eslint-disable-next-line
   }, []);
 
@@ -43,13 +43,15 @@ export const App = () => {
 
     if (!isCreating && !isEditing) {
       setActualInputValue(searchTerm);
-      setActualInputPlaceholder("Search boards...");
+      setActualInputPlaceholder("Search id board...");
     }
   }, [isCreating, isEditing, changedBoardName, nameBoardCreating, searchTerm]);
 
-  const fetchBoard = async () => {
+  const fetchBoard = async (defaultBoardId) => {
     try {
-      const fetchedBoard = await getBoardById(searchTerm);
+      const boardId = defaultBoardId ?? searchTerm;
+      
+      const fetchedBoard = await getBoardById(boardId);
     
       if (fetchedBoard) {
         setFilteredBoard(fetchedBoard);
@@ -93,8 +95,15 @@ export const App = () => {
   const submitHandler = async () => {
     try {
       if (isCreating) {
-        await createBoard({...boardEmptyTemplate, id: idBoardCreating, name: nameBoardCreating});
+        const createdBoard = await createBoard({...boardEmptyTemplate, id: idBoardCreating, name: nameBoardCreating});
         
+        if (createdBoard) {
+          setFilteredBoard(createdBoard);
+          setNameBoard(createdBoard.name);
+          setChangedBoardName(createdBoard.name);
+          setIdBoard(createdBoard.id);
+        }
+        setSearchTerm('');
         setIsCreating(false);
       }
 
@@ -116,7 +125,6 @@ export const App = () => {
       toast.error(error.response?.data?.message);
     }
   };
-  
 
   const cancelHandler = () => {
     if (isCreating) {      

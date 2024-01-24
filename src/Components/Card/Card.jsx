@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
+import Calendar from 'react-calendar';
+import Moment from 'react-moment';
 import { Edit, Delete, Ok, Cross } from '../Icons';
 import { deleteCard, updateCard } from '../../helpers/fetchers';
 
@@ -9,16 +12,17 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
   const { id: cardId } = card;
   const { id: columnId } = column;
 
-  const [text, setText] = useState(card.text);
-  const [originalText, setOriginalText] = useState(card.text);
+  const [title, setTitle] = useState(card.title);
+  const [originalTitle, setOriginalTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description);
   const [originalDescription, setOriginalDescription] = useState(card.description);
   const [isEditing, setEditing] = useState(false);
+  const [calendarDate, setCalendarDate] = useState(new Date(card.calendarDate));
 
-  const classNamesToStyle = [styles.card, styles.cardDescription, styles.cardText, styles.iconWrapper, styles.editIcon, styles.deleteIcon];
+  const classNamesToStyle = [styles.card, styles.cardDescription, styles.cardTitle, styles.iconWrapper, styles.editIcon, styles.deleteIcon];
   const elementById = document.getElementById(`${cardId}`);
 
-  const dragStartHandler = (e, column, itcardem) => {
+  const dragStartHandler = (column) => {
     setCurrentColumn(column);
     setCurrentCard(card);
   }
@@ -52,36 +56,41 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
   }
 
   const editHandler = () => {
-    setOriginalText(text);
+    setOriginalTitle(title);
     setOriginalDescription(description);
     setEditing(true);
   }
 
-  const saveUpdateHandler = async () => {
-    setBoardData((board) => {
-      if (board) {
-        
-        const column = board.columnsData.find((col) => col.id === columnId);
-        
-        if (column) {
-          const cardIndex = column.items.findIndex((c) => c.id === cardId);
-
-          if (cardIndex !== -1) {
-            column.items[cardIndex] = { text, description, id: cardId };
-            return {...board};
+  const saveUpdateCardHandler = async () => {
+    if (title && description && calendarDate) {
+      console.log(title, description, calendarDate)
+      setBoardData(board => {
+        if (board) {
+          
+          const column = board.columnsData.find((col) => col.id === columnId);
+          
+          if (column) {
+            const cardIndex = column.items.findIndex((c) => c.id === cardId);
+  
+            if (cardIndex !== -1) {
+              column.items[cardIndex] = { title, description, calendarDate, id: cardId };
+              return {...board};
+            }
           }
         }
-      }
-      return board;
-    });
-
-    updateCard(boardId, columnId, cardId, {id: cardId, text, description }, failFetchCallback);
-
-    setEditing(false);
+        return board;
+      });
+  
+      updateCard(boardId, columnId, cardId, {id: cardId, title, description, calendarDate: calendarDate.getTime() }, failFetchCallback);
+  
+      setEditing(false);
+    } else {
+      toast.error('Please, fill Title, Description and CalendarDate');
+    }
   }
 
   const cancelHandler = () => {
-    setText(originalText);
+    setTitle(originalTitle);
     setDescription(originalDescription);
     setEditing(false);
   }
@@ -109,37 +118,50 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
 
   const renderContent = () => isEditing ? (
     <>
-      <input
-        className={styles.cardTextInput}
-        type="text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <input
-        className={styles.cardDescriptionInput}
-        type="text"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <div className={styles.iconWrapper}>
-        <div onClick={cancelHandler}>
-          <Cross className={styles.crossIcon}/>
-        </div>
-        <div onClick={saveUpdateHandler}>
-          <Ok className={styles.okIcon} />
+      <div className={styles.editWrapper}>
+        <input
+          className={styles.cardTitleInput}
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <input
+          className={styles.cardDescriptionInput}
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <Calendar 
+          className={styles.calendar}
+          onChange={setCalendarDate} 
+          value={calendarDate}
+          locale={'en-EN'}
+        /> 
+        <div className={styles.iconWrapper}>
+          <div onClick={cancelHandler}>
+            <Cross className={styles.crossIcon}/>
+          </div>
+          <div onClick={saveUpdateCardHandler}>
+            <Ok className={styles.okIcon} />
+          </div>
         </div>
       </div>
     </>
   ) : (
     <>
-      <span className={styles.cardText}>{text}</span>
+      <span className={styles.cardTitle}>{title}</span>
       <span className={styles.cardDescription}>{description}</span>
-      <div className={styles.iconWrapper}>
-        <div onClick={editHandler}>
-          <Edit className={styles.editIcon} />
-        </div>
-        <div onClick={deleteHandler}>
-          <Delete className={styles.deleteIcon} />
+      <div className={styles.bottomWrapper}>
+        <Moment className={styles.cardDate} format="DD.MM.YYYY">
+          {calendarDate}
+        </Moment>
+        <div className={styles.iconWrapper}>
+          <div onClick={editHandler}>
+            <Edit className={styles.editIcon} />
+          </div>
+          <div onClick={deleteHandler}>
+            <Delete className={styles.deleteIcon} />
+          </div>
         </div>
       </div>
     </>
@@ -150,7 +172,7 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
       id={`${cardId}`}
       className={styles.card}
       draggable={!isEditing}
-      onDragStart={(e) => dragStartHandler(e, column, card)}
+      onDragStart={() => dragStartHandler(column)}
       onDragLeave={(e) => dragLeaveHandler(e)}
       onDragEnd={(e) => dragLeaveHandler(e)}
       onDragOver={(e) => dragOverHandler(e)}

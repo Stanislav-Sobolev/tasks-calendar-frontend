@@ -8,8 +8,14 @@
     background-color: var(--background);
   }
 
-  .cardText,
-  .cardTextInput {
+  .editWrapper{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cardTitle,
+  .cardTitleInput {
     display: block;
     width: 246px;
     font-size: 16px;
@@ -25,9 +31,16 @@
     padding: 6px;
   }
 
-  .cardTextInput,
+  .cardTitleInput,
   .cardDescriptionInput {
     height: 33px;
+  }
+
+  .bottomWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px;
   }
 
   .iconWrapper {
@@ -36,6 +49,18 @@
     justify-content: flex-end;
     gap: 8px;
     margin-top: 8px;
+  }
+
+  .calendar {
+    width: 246px !important;
+    border: 2px solid var(--accentSecondary) !important;
+    border-radius: 6px;
+  }
+
+  .cardDate {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--disabled);
   }
 
   .editIcon {
