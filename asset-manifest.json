@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/tasks-calendar/static/css/main.8591c5fe.css",
+    "main.js": "/tasks-calendar/static/js/main.d7bc94a6.js",
+    "index.html": "/tasks-calendar/index.html",
+    "main.8591c5fe.css.map": "/tasks-calendar/static/css/main.8591c5fe.css.map",
+    "main.d7bc94a6.js.map": "/tasks-calendar/static/js/main.d7bc94a6.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8591c5fe.css",
+    "static/js/main.d7bc94a6.js"
+  ]
+}
