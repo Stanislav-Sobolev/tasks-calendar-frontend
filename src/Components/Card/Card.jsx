@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import { FloatingLabel, Form } from 'react-bootstrap';
+import { X, Check } from 'react-bootstrap-icons';
+
 
 import Calendar from 'react-calendar';
 import Moment from 'react-moment';
-import { Edit, Delete, Ok, Cross } from '../Icons';
+import { Edit, Delete } from '../Icons';
 import { deleteCard, updateCard } from '../../helpers/fetchers';
 
-import styles from './Card.module.scss';
+import './Card.css';
 
 export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColumn, setCurrentCard, setHoveredCard, setColumns, setBoardData }) => {
   const { id: cardId } = card;
@@ -19,7 +22,7 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
   const [isEditing, setEditing] = useState(false);
   const [calendarDate, setCalendarDate] = useState(new Date(card.calendarDate));
 
-  const classNamesToStyle = [styles.card, styles.cardDescription, styles.cardTitle, styles.iconWrapper, styles.editIcon, styles.deleteIcon];
+  const classNamesToStyle = ["card", "cardDescription", "cardTitle", "iconWrapper", "editIcon", "deleteIcon"];
   const elementById = document.getElementById(`${cardId}`);
 
   const dragStartHandler = (column) => {
@@ -118,49 +121,53 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
 
   const renderContent = () => isEditing ? (
     <>
-      <div className={styles.editWrapper}>
-        <input
-          className={styles.cardTitleInput}
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <input
-          className={styles.cardDescriptionInput}
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+      <div className="editWrapper">
+        <FloatingLabel label="Title">
+          <Form.Control
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </FloatingLabel>
+        <FloatingLabel 
+          label='description'
+        >
+          <Form.Control 
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </FloatingLabel>
         <Calendar 
-          className={styles.calendar}
+          className="calendar"
           onChange={setCalendarDate} 
           value={calendarDate}
           locale={'en-EN'}
         /> 
-        <div className={styles.iconWrapper}>
+        <div className="iconWrapper">
           <div onClick={cancelHandler}>
-            <Cross className={styles.crossIcon}/>
+            <X size={34} class="text-danger"/>
           </div>
           <div onClick={saveUpdateCardHandler}>
-            <Ok className={styles.okIcon} />
+            <Check size={34} class="text-success"/>
           </div>
         </div>
       </div>
     </>
   ) : (
     <>
-      <span className={styles.cardTitle}>{title}</span>
-      <span className={styles.cardDescription}>{description}</span>
-      <div className={styles.bottomWrapper}>
-        <Moment className={styles.cardDate} format="DD.MM.YYYY">
+      <span className="cardTitle">{title}</span>
+      <span className="cardDescription">{description}</span>
+      <div className="bottomWrapper">
+        <Moment className="cardDate" format="DD.MM.YYYY">
           {calendarDate}
         </Moment>
-        <div className={styles.iconWrapper}>
+        <div className="iconWrapper">
           <div onClick={editHandler}>
-            <Edit className={styles.editIcon} />
+            <Edit className="editIcon" />
           </div>
           <div onClick={deleteHandler}>
-            <Delete className={styles.deleteIcon} />
+            <Delete className="deleteIcon" />
           </div>
         </div>
       </div>
@@ -170,7 +177,7 @@ export const Card = ({ card, column, boardId, failFetchCallback, setCurrentColum
   return (
     <div
       id={`${cardId}`}
-      className={styles.card}
+      className={isEditing ? "editedCard" : "card" }
       draggable={!isEditing}
       onDragStart={() => dragStartHandler(column)}
       onDragLeave={(e) => dragLeaveHandler(e)}

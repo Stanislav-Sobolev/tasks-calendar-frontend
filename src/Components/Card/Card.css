@@ -1,3 +1,4 @@
+.editedCard,
 .card {
     width: 100%;
     border: 2px solid var(--accentSecondary);
@@ -6,6 +7,10 @@
     margin: 5px;
     cursor: grab;
     background-color: var(--background);
+  }
+
+  .editedCard {
+    cursor: default;
   }
 
   .editWrapper{

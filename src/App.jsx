@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
+import { FloatingLabel, Form } from 'react-bootstrap';
+import { X, Check } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Board } from './Components/Board/Board';
 import boardEmptyTemplate from './assets/json/boardEmptyTemplate.json';
 import { createBoard, deleteBoard, getBoardById, updateBoardName } from './helpers/fetchers';
 
-import styles from './App.module.scss';
-import { Cross, Ok } from './Components/Icons';
+import './App.css';
 
 export const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -155,21 +156,24 @@ export const App = () => {
   }
 
   const renderButtons = () => (
-    <div className={styles.createWrapper}>
+    <div className="createWrapper">
       <button 
-        className={isCreating ? styles.btnDisable : styles.btnCreate}
+        type="button"
+        class={isCreating ? "btn btn-outline-primary btn-sm" : "btn btn-outline-secondary btn-sm"}
         onClick={() => handleBoardBtnClick('isCreating')}
       >
         Create
       </button>
       <button 
-        className={isEditing ? styles.btnDisable : styles.btnEdit}
+        type="button"
+        class={isEditing ? "btn btn-outline-primary btn-sm" : "btn btn-outline-secondary btn-sm"}
         onClick={() => handleBoardBtnClick('isEditing')}
       >
         Edit
       </button>
       <button 
-        className={isDeleting ? styles.btnDisable : styles.btnDelete}
+        type="button"
+        class={isDeleting ? "btn btn-outline-primary btn-sm" : "btn btn-outline-secondary btn-sm"}
         onClick={() => handleBoardBtnClick('isDeleting')}
       >
         Delete
@@ -180,18 +184,19 @@ export const App = () => {
   const renderIcons = () => !isCreating && !isEditing && !isDeleting  ? 
     (
       <button 
-      className={styles.btn}
+      type="button"
+      class="btn btn-primary"
       onClick={() => fetchBoard()}
     >
       Load
     </button>
     ) : (
-      <div className={styles.iconWrapper}>
+      <div className="iconWrapper">
         <div onClick={cancelHandler}>
-          <Cross className={styles.crossIcon}/>
+          <X size={34} class="text-danger"/>
         </div>
         <div onClick={submitHandler}>
-          <Ok className={styles.okIcon} />
+          <Check size={34} class="text-success"/>
         </div>
       </div>
   );
@@ -199,35 +204,40 @@ export const App = () => {
   const renderInput = () => (
     <>
     {isDeleting ?
-      (<p className={styles.deleteText}>
+      (<p className="deleteText">
           Do you want to delete current Board?
         </p>
-      ) : (<input
-        className={styles.input}
-        type="text"
-        placeholder={actualInputPlaceholder}
+      ) : (
+      <FloatingLabel
+        style={{ marginRight: '6px' }}
+        controlId="floatingInput"
+        label={actualInputPlaceholder}
         value={actualInputValue}
         onChange={handleInputChange}
-      />)
+      >
+        <Form.Control type="text" placeholder={actualInputPlaceholder}/>
+      </FloatingLabel>
+      )
     }
     
     {isCreating &&
-      <input
-        className={styles.input}
-        type="text"
-        placeholder="ID Board"
+      <FloatingLabel
+        controlId="floatingInput"
+        label="ID Board"
         value={idBoardCreating}
         onChange={(e) => setIdBoardCreating(e.target.value)}
-      />
+      >
+        <Form.Control type="text" placeholder="ID Board"/>
+      </FloatingLabel>
     }
     </>
   );
  
   return (
-    <div className={styles.app}>
+    <div className="app">
       <ToastContainer />
       {renderButtons()}
-      <div className={styles.searchPanel}>
+      <div className="searchPanel">
         {renderInput()}
         {renderIcons()}
       </div>

@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { FloatingLabel, Form } from 'react-bootstrap';
+import { X, Check } from 'react-bootstrap-icons';
 
+import Calendar from 'react-calendar';
 import { Card } from '../Card/Card';
 import cardEmptyTemplate from '../../assets/json/cardEmptyTemplate.json';
-import styles from './Board.module.scss';
 import { Plus } from '../Icons';
 import { createCard, dndCard } from '../../helpers/fetchers';
-import Calendar from 'react-calendar';
-import { Ok, Cross } from '../Icons';
+import './Board.css';
 
 export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) => {
   const { id: boardId, columnsData } = boardData;
@@ -101,33 +102,35 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
 
   const renderModal = () => (
     <>
-    <div className={styles.modalOverlay}>
-    <div className={styles.modalWrapper}>
-      <input
-        className={styles.cardTextInput}
-        type="text"
-        value={title}
-        placeholder='title'
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <input
-        className={styles.cardDescriptionInput}
-        type="text"
-        value={description}
-        placeholder='description'
-        onChange={(e) => setDescription(e.target.value)}
-      />
+    <div className="modalOverlay">
+    <div className="modalWrapper">
+      <FloatingLabel
+          controlId="floatingInput"
+          label='title'
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        >
+          <Form.Control type="text"/>
+        </FloatingLabel>
+        <FloatingLabel 
+          controlId="floatingPassword" 
+          label='description'
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        >
+          <Form.Control type="text"/>
+        </FloatingLabel>
       <Calendar 
         onChange={setCalendarDate} 
         value={calendarDate}
         locale={'en-EN'}
       /> 
-      <div className={styles.iconWrapper}>
+      <div className="iconWrapper">
       <div onClick={cancelHandler}>
-        <Cross className={styles.crossIcon}/>
+        <X size={34} class="text-danger" bsClass="crossIcon"/>
       </div>
       <div onClick={saveUpdateHandler}>
-        <Ok className={styles.okIcon} />
+        <Check size={34} class="text-success"/>
       </div>
       </div>
       </div>
@@ -136,16 +139,16 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
   );
 
   return (
-    <div className={styles.board}>
-      <h1 className={styles.boardName}>{nameBoard}</h1>
+    <div className="board">
+      <h1 className="boardName">{nameBoard}</h1>
       { isShowCalendar ? renderModal() : null}
-      <div className={styles.columns}>
+      <div className="columns">
         {columns && columns.map(column => 
-          <div key={column.id} className={styles.columnWrapper}>
-            <h2 className={styles.columnTitle}>{column.title}</h2>
+          <div key={column.id} className="columnWrapper">
+            <h2 className="columnTitle">{column.title}</h2>
             <div 
               key={column.id}
-              className={styles.column}
+              className="column"
               onDragOver={(e) => dragOverHandler(e)}
               onDrop={(e) => dropCardHandler(e, column)}
             >
@@ -165,10 +168,10 @@ export const Board = ({boardData, nameBoard, failFetchCallback, setBoardData}) =
                 />
               ))}
               <div 
-                className={styles.plusWrapper}
+                className="plusWrapper"
                 onClick={() => addCardHandler(column)}
               >
-                <Plus className={styles.plusIcon}/>
+                <Plus className="plusIcon"/>
               </div>
             </div>
           </div>
